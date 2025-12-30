@@ -3,61 +3,85 @@ import pandas as pd
 import plotly.graph_objects as go
 
 # Page Configuration
-st.set_page_config(page_title="نظام نتائج الطلاب", page_icon="🎓", layout="centered")
+st.set_page_config(page_title="Student Portal", page_icon="🎓", layout="centered")
 
-# --- CUSTOM CSS (Modern UI) ---
+# --- CUSTOM CSS (Clean Professional UI) ---
 st.markdown("""
 <style>
-    /* Global Font & Direction */
-    .main { direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    
-    /* Login Card Styling */
-    .login-container {
-        background-color: white;
-        padding: 40px;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        text-align: center;
-        margin-top: 50px;
+    /* 1. Global Background & Font */
+    .stApp {
+        background-color: #f4f6f9;
+        background-image: radial-gradient(#e3e8ef 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+    .main { 
+        direction: rtl; 
+        text-align: right; 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        color: #333;
     }
     
-    /* Stats Cards */
-    .stat-card {
-        background-color: white; 
-        border-radius: 15px; 
-        padding: 20px; 
-        text-align: center; 
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        border: 1px solid #f0f0f0;
-        transition: transform 0.2s;
+    /* 2. Clean Cards */
+    .clean-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 25px;
+        margin-bottom: 20px;
+        border: 1px solid #e1e4e8;
     }
-    .stat-card:hover { transform: translateY(-5px); }
-    .stat-value { font-size: 2rem; font-weight: bold; color: #1E88E5; }
-    .stat-label { font-size: 0.9rem; color: #888; margin-top: 5px;}
 
-    /* Inputs & Buttons */
-    .stTextInput > label { direction: rtl; text-align: right; width: 100%; }
-    .stTextInput input { text-align: center; border-radius: 10px; }
+    /* 3. Header Styling */
+    h1, h2, h3, h4 { color: #1f2937; margin: 0; }
+    p { color: #6b7280; }
+
+    /* 4. Stats Boxes */
+    .stat-box {
+        background: #f8fafc; 
+        border-radius: 12px; 
+        padding: 15px; 
+        text-align: center; 
+        border: 1px solid #e2e8f0;
+    }
+    .stat-val { font-size: 1.8rem; font-weight: bold; color: #2563eb; }
+    .stat-lbl { font-size: 0.85rem; color: #64748b; font-weight: 600; }
+
+    /* 5. Inputs & Buttons */
+    .stTextInput input { 
+        text-align: center; 
+        border-radius: 10px; 
+        border: 1px solid #d1d5db; 
+        padding: 10px;
+        font-size: 1.1rem;
+    }
     .stButton button { 
         width: 100%; 
-        background-color: #1E88E5; 
+        background-color: #2563eb; 
         color: white; 
         font-size: 16px; 
         border-radius: 10px; 
-        padding: 10px;
+        padding: 10px 0;
         border: none;
+        font-weight: 600;
+        transition: background 0.2s;
     }
-    .stButton button:hover { background-color: #1565C0; }
+    .stButton button:hover { background-color: #1d4ed8; }
 
-    /* Progress Bar Labels */
-    .progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; color: #555; }
+    /* 6. Progress Bars */
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px; color: #374151; font-weight: 600; }
+    .progress-bg { background-color: #e5e7eb; border-radius: 8px; height: 10px; width: 100%; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 8px; }
+
+    /* 7. Calculator Table (Fixed Colors) */
+    .calc-table { width: 100%; direction: rtl; border-collapse: collapse; margin-top: 10px; }
+    .calc-table td, .calc-table th { padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; text-align: right; }
+    .calc-table th { font-weight: 600; color: #4b5563; background-color: #f9fafb; }
     
-    /* Calculator Table */
-    .calc-table { width: 100%; border-collapse: separate; border-spacing: 0; direction: rtl; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
-    .calc-table td, .calc-table th { padding: 12px; text-align: center; border-bottom: 1px solid #eee; }
-    .calc-table th { background-color: #f8f9fa; color: #444; font-weight: bold; }
-    .calc-row-pass { background-color: #e8f5e9; color: #2e7d32; font-weight: bold; }
-    .calc-row-hard { background-color: #ffebee; color: #c62828; }
+    /* Rows Styles */
+    .row-pass { color: #166534 !important; font-weight: bold; background-color: #f0fdf4; }
+    .row-fail { color: #991b1b !important; background-color: #fef2f2; opacity: 0.7; }
+    .row-norm { color: #1f2937; }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -66,169 +90,163 @@ def create_gauge(score, max_score=50):
         mode = "gauge+number",
         value = score,
         domain = {'x': [0, 1], 'y': [0, 1]},
-        title = {'text': "الدرجة النهائية", 'font': {'size': 18, 'color': '#555'}},
+        title = {'text': "الدرجة النهائية", 'font': {'size': 18, 'color': '#374151'}},
         gauge = {
-            'axis': {'range': [None, max_score], 'tickwidth': 1},
-            'bar': {'color': "#1E88E5"},
+            'axis': {'range': [None, max_score], 'tickwidth': 1, 'tickcolor': '#9ca3af'},
+            'bar': {'color': "#2563eb"},
             'bgcolor': "white",
             'borderwidth': 0,
             'steps': [
-                {'range': [0, 25], 'color': '#ffebee'},
-                {'range': [25, 40], 'color': '#fff8e1'},
-                {'range': [40, 50], 'color': '#e8f5e9'}
+                {'range': [0, 25], 'color': '#fecaca'}, # Light Red
+                {'range': [25, 40], 'color': '#fde68a'}, # Light Yellow
+                {'range': [40, 50], 'color': '#bbf7d0'}  # Light Green
             ],
         }
     ))
-    fig.update_layout(height=220, margin=dict(l=20, r=20, t=30, b=20))
+    fig.update_layout(height=220, margin=dict(l=20, r=20, t=30, b=20), paper_bgcolor='rgba(0,0,0,0)', font={'family': 'Segoe UI'})
     return fig
 
-# Helper to make HTML Progress Bars
-def progress_bar_html(label, value, max_val, color="#1E88E5"):
-    percentage = (value / max_val) * 100
+def progress_html(label, value, max_val, color):
+    # Ensure value handles NaN or non-numeric gracefully
+    try:
+        val_float = float(value)
+    except:
+        val_float = 0.0
+    
+    percent = (val_float / max_val) * 100
     return f"""
     <div style="margin-bottom: 12px;">
         <div class="progress-label">
             <span>{label}</span>
-            <span style="font-weight:bold;">{value}/{max_val}</span>
+            <span>{val_float} / {max_val}</span>
         </div>
-        <div style="background-color: #eef2f6; border-radius: 8px; height: 10px; width: 100%; overflow: hidden;">
-            <div style="background-color: {color}; width: {percentage}%; height: 100%; border-radius: 8px;"></div>
+        <div class="progress-bg">
+            <div class="progress-fill" style="width: {percent}%; background-color: {color};"></div>
         </div>
     </div>
     """
 
 def main():
     try:
+        # Force string for key to keep leading zeros
         df = pd.read_csv("grades.csv", dtype={'رمز_الدخول': str})
+        
+        # Ensure 'السعي النهائي (50)' is numeric
+        # This fixes the calculator if the CSV had weird text formats
+        df['السعي النهائي (50)'] = pd.to_numeric(df['السعي النهائي (50)'], errors='coerce').fillna(0)
+
     except FileNotFoundError:
-        st.error("عذراً، لم يتم العثور على ملف الدرجات.")
+        st.error("❌ Database missing.")
         return
 
-    # --- Login Section ---
+    # --- Login Logic ---
     if 'logged_in' not in st.session_state:
         st.session_state.logged_in = False
 
     if not st.session_state.logged_in:
-        # Centered Login Card
         st.markdown("<br><br>", unsafe_allow_html=True)
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
+        c1, c2, c3 = st.columns([1, 2, 1])
+        with c2:
             st.markdown("""
-            <div class="login-container">
-                <h1 style="margin:0;">🔐</h1>
-                <h3 style="color:#333; margin-top:10px;">بوابة النتائج</h3>
-                <p style="color:#777; font-size:0.9rem;">أدخل الرمز السري لعرض نتيجتك</p>
+            <div class="clean-card" style="text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 10px;">🔐</div>
+                <h2>بوابة الطلاب</h2>
+                <p>أدخل الرمز السري</p>
             </div>
             """, unsafe_allow_html=True)
             
-            key_input = st.text_input("رمز الدخول", type="password", label_visibility="collapsed", placeholder="أدخل الرمز هنا")
+            key = st.text_input("Key", type="password", label_visibility="collapsed", placeholder="رمز الدخول")
             
             if st.button("دخول"):
-                if key_input:
-                    student_record = df[df['رمز_الدخول'] == key_input]
-                    if not student_record.empty:
+                if key:
+                    record = df[df['رمز_الدخول'] == key]
+                    if not record.empty:
                         st.session_state.logged_in = True
-                        st.session_state.student = student_record.iloc[0]
+                        st.session_state.student = record.iloc[0]
                         st.rerun()
                     else:
-                        st.error("❌ رمز غير صحيح")
+                        st.error("❌ الرمز غير صحيح")
                 else:
-                    st.warning("يرجى إدخال الرمز")
+                    st.warning("يرجى كتابة الرمز")
 
-    # --- Dashboard Section ---
+    # --- Dashboard Logic ---
     else:
         row = st.session_state.student
-        total_score = row['السعي النهائي (50)']
-        
-        # Determine Status Badge
-        if total_score >= 40:
-            badge = "🌟 مميز"
-            badge_color = "#e8f5e9" # Light Green
-            text_color = "#2e7d32"
-        elif total_score >= 25:
-            badge = "✅ جيد"
-            badge_color = "#fff8e1" # Light Yellow
-            text_color = "#f57f17"
-        else:
-            badge = "⚠️ يحتاج متابعة"
-            badge_color = "#ffebee" # Light Red
-            text_color = "#c62828"
+        total = float(row['السعي النهائي (50)'])
 
-        # 1. Header with Badge
+        # Badge Logic
+        if total >= 40: badge, b_col, t_col = "🌟 ممتاز", "#dcfce7", "#166534"
+        elif total >= 30: badge, b_col, t_col = "✅ جيد جداً", "#e0f2fe", "#0369a1"
+        elif total >= 25: badge, b_col, t_col = "⚖️ متوسط", "#fef9c3", "#854d0e"
+        else: badge, b_col, t_col = "⚠️ يحتاج متابعة", "#fee2e2", "#991b1b"
+
+        # 1. HEADER CARD
         st.markdown(f"""
-        <div style="background-color:white; padding:20px; border-radius:15px; margin-bottom:20px; text-align:center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eee;">
-            <h2 style="color:#333; margin:0;">{row['اسم الطالب']}</h2>
-            <div style="margin-top:10px;">
-                <span style="background-color:{badge_color}; color:{text_color}; padding:5px 15px; border-radius:20px; font-weight:bold; font-size:0.9rem;">{badge}</span>
+        <div class="clean-card" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
+            <div style="text-align: right;">
+                <h2 style="font-size: 1.5rem; font-weight: bold;">{row['اسم الطالب']}</h2>
+                <p style="margin:0; font-size: 0.9rem;">لوحة النتائج</p>
+            </div>
+            <div style="background-color:{b_col}; color:{t_col}; padding:6px 16px; border-radius:20px; font-weight:bold; font-size:0.9rem;">
+                {badge}
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        # 2. Main Visuals
-        col_gauge, col_details = st.columns([1, 1])
+        # 2. GAUGE & DETAILS
+        c_left, c_right = st.columns([1, 1])
         
-        with col_gauge:
-            st.plotly_chart(create_gauge(total_score), use_container_width=True)
+        with c_left:
+            st.markdown('<div class="clean-card" style="height: 100%;">', unsafe_allow_html=True)
+            st.plotly_chart(create_gauge(total), use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        with col_details:
-            st.markdown("#### 📊 تفاصيل الدرجات")
-            st.markdown("<div style='background-color:white; padding:15px; border-radius:15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eee;'>", unsafe_allow_html=True)
+        with c_right:
+            st.markdown('<div class="clean-card" style="height: 100%;">', unsafe_allow_html=True)
+            st.markdown("<h4 style='margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;'>📊 التفاصيل</h4>", unsafe_allow_html=True)
             
-            # Progress Bars
-            st.markdown(progress_bar_html("الامتحان النصفي", row['الامتحان النصفي'], 15, "#1E88E5"), unsafe_allow_html=True)
-            st.markdown(progress_bar_html("السعي التكويني", row['السعي التكويني (40)'], 40, "#43A047"), unsafe_allow_html=True)
-            st.markdown(progress_bar_html("↳ التقرير", row['التقرير (10)'], 10, "#FB8C00"), unsafe_allow_html=True)
-            st.markdown(progress_bar_html("↳ المناقشة", row['المناقشة (10)'], 10, "#FB8C00"), unsafe_allow_html=True)
-            
-            st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown(progress_html("الامتحان النصفي", row['الامتحان النصفي'], 15, "#f97316"), unsafe_allow_html=True)
+            st.markdown(progress_html("السعي التكويني", row['السعي التكويني (40)'], 40, "#3b82f6"), unsafe_allow_html=True)
+            st.markdown(progress_html("↳ التقرير", row['التقرير (10)'], 10, "#8b5cf6"), unsafe_allow_html=True)
+            st.markdown(progress_html("↳ المناقشة", row['المناقشة (10)'], 10, "#10b981"), unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
+        # 3. STATS ROW
+        total_col = 'السعي النهائي (50)'
+        avg = df[total_col].mean()
+        high = df[total_col].max()
+        df_sort = df.sort_values(by=total_col, ascending=False).reset_index()
+        rank = df_sort[df_sort['رمز_الدخول'] == row['رمز_الدخول']].index[0] + 1
+
+        s1, s2, s3 = st.columns(3)
+        s3.markdown(f'<div class="stat-box"><div class="stat-val">#{rank}</div><div class="stat-lbl">الترتيب</div></div>', unsafe_allow_html=True)
+        s2.markdown(f'<div class="stat-box"><div class="stat-val">{avg:.1f}</div><div class="stat-lbl">المعدل</div></div>', unsafe_allow_html=True)
+        s1.markdown(f'<div class="stat-box"><div class="stat-val">{high}</div><div class="stat-lbl">الأعلى</div></div>', unsafe_allow_html=True)
+
+        # 4. CALCULATOR
         st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown('<div class="clean-card">', unsafe_allow_html=True)
+        st.markdown("<h4 style='margin-bottom:15px;'>🧮 حاسبة الفاينل (Final Exam)</h4>", unsafe_allow_html=True)
+        st.caption("كم تحتاج في الامتحان النهائي (من 50) للحصول على التقدير:")
 
-        # 3. Class Stats
-        st.markdown("### 📈 مستواك مقارنة بالدفعة")
-        total_grade_col = 'السعي النهائي (50)'
-        class_avg = df[total_grade_col].mean()
-        class_max = df[total_grade_col].max()
-        df_sorted = df.sort_values(by=total_grade_col, ascending=False).reset_index()
-        rank = df_sorted[df_sorted['رمز_الدخول'] == row['رمز_الدخول']].index[0] + 1
-
-        m1, m2, m3 = st.columns(3)
-        with m3:
-            st.markdown(f"""<div class="stat-card"><div class="stat-value">#{rank}</div><div class="stat-label">الترتيب</div></div>""", unsafe_allow_html=True)
-        with m2:
-             st.markdown(f"""<div class="stat-card"><div class="stat-value">{class_avg:.1f}</div><div class="stat-label">المعدل العام</div></div>""", unsafe_allow_html=True)
-        with m1:
-            st.markdown(f"""<div class="stat-card"><div class="stat-value">{class_max}</div><div class="stat-label">أعلى درجة</div></div>""", unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-
-        # 4. Calculator
-        st.markdown("### 🧮 ماذا تحتاج في النهائي؟")
-        
         targets = {"مقبول (50)": 50, "متوسط (60)": 60, "جيد (70)": 70, "جيد جداً (80)": 80, "امتياز (90)": 90}
-        html_rows = ""
+        rows = ""
         
-        for label, target in targets.items():
-            required = target - total_score
-            if required <= 0:
-                status = "✅ ناجح"
-                color_class = "calc-row-pass"
-            elif required > 50:
-                status = "❌ غير ممكن"
-                color_class = "calc-row-hard"
+        for lbl, tgt in targets.items():
+            req = tgt - total
+            if req <= 0:
+                # Already Passed
+                rows += f"<tr class='row-pass'><td>{lbl}</td><td>✅ ناجح مسبقاً</td></tr>"
+            elif req > 50:
+                # Impossible
+                rows += f"<tr class='row-fail'><td>{lbl}</td><td>❌ غير ممكن (تحتاج {int(req)})</td></tr>"
             else:
-                status = f"تحتاج <b>{required}</b>"
-                color_class = ""
-            html_rows += f"<tr class='{color_class}'><td>{label}</td><td>{status}</td></tr>"
+                # Needed
+                rows += f"<tr class='row-norm'><td>{lbl}</td><td>تحتاج <b>{int(req)}</b> / 50</td></tr>"
+            
+        st.markdown(f"<table class='calc-table'><thead><tr><th>التقدير المطلوب</th><th>الدرجة المطلوبة في النهائي</th></tr></thead><tbody>{rows}</tbody></table>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown(f"""
-        <table class="calc-table">
-            <tr><th>التقدير المطلوب</th><th>المطلوب في النهائي (من 50)</th></tr>
-            {html_rows}
-        </table>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("<br><br>", unsafe_allow_html=True)
         if st.button("تسجيل خروج"):
             st.session_state.logged_in = False
             st.rerun()
