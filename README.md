@@ -1,3 +1,50 @@
-🎓 Secure Student Grade Portal & Distribution BotThis project is a complete system for securely distributing student grades. It consists of two parts:The Website: A dashboard where students view their results, statistics, and final exam calculations.The Telegram Bot: A secure tool that distributes unique Access Keys to students (one-time use) and provides admin management tools.📂 Project Structureapp.py: The code for the Website (Streamlit).bot.py: The code for the Telegram Bot (Runs on your laptop).grades.csv: The database containing names, grades, and the secret Keys.requirements.txt: List of libraries needed for the website.🚀 Part 1: The Website (Streamlit)This is the interface students see. It is hosted on the cloud.FeaturesVisual Gauge: Speedometer showing the total score.Class Stats: Shows the student's rank and the class average anonymously.Final Exam Calculator: Calculates required scores to pass or excel.Secure Login: Uses a 5-digit PIN (Key).Installation & DeploymentUpload app.py, grades.csv, and requirements.txt to this GitHub repository.Go to Streamlit Cloud.Connect your GitHub account and select this repository.Click Deploy.Important: If you update the grades in grades.csv, you must upload the new file to GitHub for the changes to appear on the website.🤖 Part 2: The Admin Bot (Telegram)This tool hands out the keys to students so you don't have to message them individually. It runs locally on your computer.FeaturesOne-Shot Security: Students can only claim one key per Telegram account.Smart Recovery: If a student loses their key, the bot resends it (instead of blocking them).Smart Typos: Detects spelling mistakes (e.g., "Ahmd" -> "Did you mean Ahmed?").Admin Tools: View logs, stats, and export data to Excel.Setup (On your Computer)Install Python.Install the required libraries:pip install python-telegram-bot pandas openpyxl
-Place bot.py and grades.csv in the same folder.Run the bot:python bot.py
-🛠️ Admin Commands (For You Only)/stats - View how many students have collected their keys./log - Receive the raw text log file of all transactions./export - (New) Download an Excel file of all registered students (Names + Telegram Usernames)./reset [Full Name] - Delete a student's claim so they can try again (useful if they made a mistake).⚠️ Crucial Security NoteSynchronization: Ensure the grades.csv file on your Laptop (for the Bot) is the exact same version as the one on GitHub (for the Website). If the keys don't match, students won't be able to log in.Bot Token: Never upload bot.py containing your secret Token to a public GitHub repository. Keep it private on your laptop.📝 CreditsBuilt with Streamlit and Python-Telegram-Bot.
+🎓 Secure Student Grade Portal & Distribution Bot
+This project is a complete system for securely distributing student grades. It consists of two parts:
+The Website: A dashboard where students view their results, statistics, and final exam calculations.
+The Telegram Bot: A secure tool that distributes unique Access Keys to students (one-time use) and provides admin management tools.
+📂 Project Structure
+app.py: The code for the Website (Streamlit).
+bot.py: The code for the Telegram Bot (Runs on your laptop).
+grades.csv: The database containing names, grades, and the secret Keys.
+requirements.txt: List of libraries needed for the website.
+🚀 Part 1: The Website (Streamlit)
+This is the interface students see. It is hosted on the cloud.
+Features
+Visual Gauge: Speedometer showing the total score.
+Class Stats: Shows the student's rank and the class average anonymously.
+Final Exam Calculator: Calculates required scores to pass or excel.
+Secure Login: Uses a 5-digit PIN (Key).
+Installation & Deployment
+Upload app.py, grades.csv, and requirements.txt to this GitHub repository.
+Go to Streamlit Cloud.
+Connect your GitHub account and select this repository.
+Click Deploy.
+Important: If you update the grades in grades.csv, you must upload the new file to GitHub for the changes to appear on the website.
+🤖 Part 2: The Admin Bot (Telegram)
+This tool hands out the keys to students so you don't have to message them individually. It runs locally on your computer.
+Features
+One-Shot Security: Students can only claim one key per Telegram account.
+Smart Recovery: If a student loses their key, the bot resends it (instead of blocking them).
+Smart Typos: Detects spelling mistakes (e.g., "Ahmd" -> "Did you mean Ahmed?").
+Admin Tools: View logs, stats, and export data to Excel.
+Setup (On your Computer)
+Install Python.
+Install the required libraries:
+pip install python-telegram-bot pandas openpyxl
+
+
+Place bot.py and grades.csv in the same folder.
+Run the bot:
+python bot.py
+
+
+🛠️ Admin Commands (For You Only)
+/stats - View how many students have collected their keys.
+/log - Receive the raw text log file of all transactions.
+/export - (New) Download an Excel file of all registered students (Names + Telegram Usernames).
+/reset [Full Name] - Delete a student's claim so they can try again (useful if they made a mistake).
+⚠️ Crucial Security Note
+Synchronization: Ensure the grades.csv file on your Laptop (for the Bot) is the exact same version as the one on GitHub (for the Website). If the keys don't match, students won't be able to log in.
+Bot Token: Never upload bot.py containing your secret Token to a public GitHub repository. Keep it private on your laptop.
+📝 Credits
+Built with Streamlit and Python-Telegram-Bot.
