@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 # Page Configuration
 st.set_page_config(page_title="Student Portal", page_icon="🎓", layout="centered")
 
-# --- CUSTOM CSS (Clean Professional UI) ---
+# --- CUSTOM CSS (Clean Professional UI - FIXED) ---
 st.markdown("""
 <style>
     /* 1. Global Background & Font */
@@ -15,13 +15,17 @@ st.markdown("""
         background-size: 20px 20px;
     }
     .main { 
-        direction: rtl; 
-        text-align: right; 
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
         color: #333;
     }
     
-    /* 2. Clean Cards */
+    /* 2. RTL Text Container */
+    .rtl-text {
+        direction: rtl;
+        text-align: right;
+    }
+    
+    /* 3. Clean Cards */
     .clean-card {
         background: white;
         border-radius: 15px;
@@ -31,11 +35,11 @@ st.markdown("""
         border: 1px solid #e1e4e8;
     }
 
-    /* 3. Header Styling */
+    /* 4. Header Styling */
     h1, h2, h3, h4 { color: #1f2937; margin: 0; }
     p { color: #6b7280; }
 
-    /* 4. Stats Boxes */
+    /* 5. Stats Boxes */
     .stat-box {
         background: #f8fafc; 
         border-radius: 12px; 
@@ -46,7 +50,7 @@ st.markdown("""
     .stat-val { font-size: 1.8rem; font-weight: bold; color: #2563eb; }
     .stat-lbl { font-size: 0.85rem; color: #64748b; font-weight: 600; }
 
-    /* 5. Inputs & Buttons */
+    /* 6. Inputs & Buttons */
     .stTextInput input { 
         text-align: center; 
         border-radius: 10px; 
@@ -67,20 +71,87 @@ st.markdown("""
     }
     .stButton button:hover { background-color: #1d4ed8; }
 
-    /* 6. Progress Bars */
-    .progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px; color: #374151; font-weight: 600; }
-    .progress-bg { background-color: #e5e7eb; border-radius: 8px; height: 10px; width: 100%; overflow: hidden; }
-    .progress-fill { height: 100%; border-radius: 8px; }
+    /* 7. Progress Bars */
+    .progress-label { 
+        display: flex; 
+        justify-content: space-between; 
+        font-size: 0.9rem; 
+        margin-bottom: 8px; 
+        color: #374151; 
+        font-weight: 600;
+        direction: rtl;
+        text-align: right;
+    }
+    .progress-bg { 
+        background-color: #e5e7eb; 
+        border-radius: 8px; 
+        height: 10px; 
+        width: 100%; 
+        overflow: hidden; 
+    }
+    .progress-fill { 
+        height: 100%; 
+        border-radius: 8px; 
+    }
 
-    /* 7. Calculator Table (Fixed Colors) */
-    .calc-table { width: 100%; direction: rtl; border-collapse: collapse; margin-top: 10px; }
-    .calc-table td, .calc-table th { padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; text-align: right; }
-    .calc-table th { font-weight: 600; color: #4b5563; background-color: #f9fafb; }
+    /* 8. Calculator Table (Fixed Colors) */
+    .calc-table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-top: 10px; 
+        direction: rtl;
+    }
+    .calc-table td, .calc-table th { 
+        padding: 12px; 
+        border-bottom: 1px solid #e5e7eb; 
+        color: #1f2937; 
+        text-align: right; 
+    }
+    .calc-table th { 
+        font-weight: 600; 
+        color: #4b5563; 
+        background-color: #f9fafb; 
+    }
     
     /* Rows Styles */
-    .row-pass { color: #166534 !important; font-weight: bold; background-color: #f0fdf4; }
-    .row-fail { color: #991b1b !important; background-color: #fef2f2; opacity: 0.7; }
-    .row-norm { color: #1f2937; }
+    .row-pass { 
+        color: #166534 !important; 
+        font-weight: bold; 
+        background-color: #f0fdf4; 
+    }
+    .row-fail { 
+        color: #991b1b !important; 
+        background-color: #fef2f2; 
+        opacity: 0.7; 
+    }
+    .row-norm { 
+        color: #1f2937; 
+    }
+
+    /* 9. Login Container Centering */
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* 10. Header Flex Fix */
+    .header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        direction: rtl;
+    }
+    
+    .header-left {
+        text-align: right;
+        flex: 1;
+    }
+    
+    .header-badge {
+        flex-shrink: 0;
+        margin-right: 20px;
+    }
 
 </style>
 """, unsafe_allow_html=True)
@@ -113,12 +184,12 @@ def progress_html(label, value, max_val, color):
     except:
         val_float = 0.0
     
-    percent = (val_float / max_val) * 100
+    percent = (val_float / max_val) * 100 if max_val > 0 else 0
     return f"""
     <div style="margin-bottom: 12px;">
         <div class="progress-label">
-            <span>{label}</span>
             <span>{val_float} / {max_val}</span>
+            <span>{label}</span>
         </div>
         <div class="progress-bg">
             <div class="progress-fill" style="width: {percent}%; background-color: {color};"></div>
@@ -131,18 +202,11 @@ def main():
         # Force string for key to keep leading zeros
         df = pd.read_csv("grades.csv", dtype={'رمز_الدخول': str})
         
-        # Ensure numeric columns are properly converted
-        numeric_columns = ['السعي النهائي (50)', 'الامتحان النصفي', 'السعي التكويني (40)', 
-                          'التقرير (10)', 'المناقشة (10)']
-        for col in numeric_columns:
-            if col in df.columns:
-                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+        # Ensure 'السعي النهائي (50)' is numeric
+        df['السعي النهائي (50)'] = pd.to_numeric(df['السعي النهائي (50)'], errors='coerce').fillna(0)
 
     except FileNotFoundError:
         st.error("❌ Database missing.")
-        return
-    except Exception as e:
-        st.error(f"❌ Error loading data: {str(e)}")
         return
 
     # --- Login Logic ---
@@ -154,7 +218,7 @@ def main():
         c1, c2, c3 = st.columns([1, 2, 1])
         with c2:
             st.markdown("""
-            <div class="clean-card" style="text-align: center;">
+            <div class="clean-card rtl-text" style="text-align: center;">
                 <div style="font-size: 3rem; margin-bottom: 10px;">🔐</div>
                 <h2>بوابة الطلاب</h2>
                 <p>أدخل الرمز السري</p>
@@ -188,28 +252,28 @@ def main():
 
         # 1. HEADER CARD
         st.markdown(f"""
-        <div class="clean-card" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
-            <div style="text-align: right;">
-                <h2 style="font-size: 1.5rem; font-weight: bold;">{row['اسم الطالب']}</h2>
-                <p style="margin:0; font-size: 0.9rem;">لوحة النتائج</p>
+        <div class="clean-card header-flex">
+            <div class="header-left">
+                <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 5px;">{row['اسم الطالب']}</h2>
+                <p style="margin: 0; font-size: 0.9rem;">لوحة النتائج</p>
             </div>
-            <div style="background-color:{b_col}; color:{t_col}; padding:6px 16px; border-radius:20px; font-weight:bold; font-size:0.9rem;">
+            <div class="header-badge" style="background-color:{b_col}; color:{t_col}; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; white-space: nowrap;">
                 {badge}
             </div>
         </div>
         """, unsafe_allow_html=True)
 
         # 2. GAUGE & DETAILS
-        c_left, c_right = st.columns([1, 1])
+        c_left, c_right = st.columns([1, 1], gap="medium")
         
         with c_left:
-            st.markdown('<div class="clean-card" style="height: 100%;">', unsafe_allow_html=True)
-            st.plotly_chart(create_gauge(total), use_container_width=True)
+            st.markdown('<div class="clean-card">', unsafe_allow_html=True)
+            st.plotly_chart(create_gauge(total), use_container_width=True, config={'displayModeBar': False})
             st.markdown('</div>', unsafe_allow_html=True)
 
         with c_right:
-            st.markdown('<div class="clean-card" style="height: 100%;">', unsafe_allow_html=True)
-            st.markdown("<h4 style='margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;'>📊 التفاصيل</h4>", unsafe_allow_html=True)
+            st.markdown('<div class="clean-card rtl-text">', unsafe_allow_html=True)
+            st.markdown("<h4 style='margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;'>📊 التفاصيل</h4>", unsafe_allow_html=True)
             
             st.markdown(progress_html("الامتحان النصفي", row['الامتحان النصفي'], 15, "#f97316"), unsafe_allow_html=True)
             st.markdown(progress_html("السعي التكويني", row['السعي التكويني (40)'], 40, "#3b82f6"), unsafe_allow_html=True)
@@ -221,18 +285,21 @@ def main():
         total_col = 'السعي النهائي (50)'
         avg = df[total_col].mean()
         high = df[total_col].max()
-        df_sort = df.sort_values(by=total_col, ascending=False).reset_index(drop=True)
+        df_sort = df.sort_values(by=total_col, ascending=False).reset_index()
         rank = df_sort[df_sort['رمز_الدخول'] == row['رمز_الدخول']].index[0] + 1
 
         s1, s2, s3 = st.columns(3)
-        s3.markdown(f'<div class="stat-box"><div class="stat-val">#{rank}</div><div class="stat-lbl">الترتيب</div></div>', unsafe_allow_html=True)
-        s2.markdown(f'<div class="stat-box"><div class="stat-val">{avg:.1f}</div><div class="stat-lbl">المعدل</div></div>', unsafe_allow_html=True)
-        s1.markdown(f'<div class="stat-box"><div class="stat-val">{high}</div><div class="stat-lbl">الأعلى</div></div>', unsafe_allow_html=True)
+        with s3:
+            st.markdown(f'<div class="stat-box"><div class="stat-val">#{rank}</div><div class="stat-lbl">الترتيب</div></div>', unsafe_allow_html=True)
+        with s2:
+            st.markdown(f'<div class="stat-box"><div class="stat-val">{avg:.1f}</div><div class="stat-lbl">المعدل</div></div>', unsafe_allow_html=True)
+        with s1:
+            st.markdown(f'<div class="stat-box"><div class="stat-val">{high}</div><div class="stat-lbl">الأعلى</div></div>', unsafe_allow_html=True)
 
         # 4. CALCULATOR
         st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown('<div class="clean-card">', unsafe_allow_html=True)
-        st.markdown("<h4 style='margin-bottom:15px;'>🧮 حاسبة الفاينل (Final Exam)</h4>", unsafe_allow_html=True)
+        st.markdown('<div class="clean-card rtl-text">', unsafe_allow_html=True)
+        st.markdown("<h4 style='margin-bottom: 15px;'>🧮 حاسبة الفاينل (Final Exam)</h4>", unsafe_allow_html=True)
         st.caption("كم تحتاج في الامتحان النهائي (من 50) للحصول على التقدير:")
 
         targets = {"مقبول (50)": 50, "متوسط (60)": 60, "جيد (70)": 70, "جيد جداً (80)": 80, "امتياز (90)": 90}
@@ -242,15 +309,15 @@ def main():
             req = tgt - total
             if req <= 0:
                 # Already Passed
-                rows += f"<tr class='row-pass'><td>{lbl}</td><td>✅ ناجح مسبقاً</td></tr>"
+                rows += f"<tr class='row-pass'><td>✅ ناجح مسبقاً</td><td>{lbl}</td></tr>"
             elif req > 50:
                 # Impossible
-                rows += f"<tr class='row-fail'><td>{lbl}</td><td>❌ غير ممكن (تحتاج {int(req)})</td></tr>"
+                rows += f"<tr class='row-fail'><td>❌ غير ممكن (تحتاج {int(req)})</td><td>{lbl}</td></tr>"
             else:
                 # Needed
-                rows += f"<tr class='row-norm'><td>{lbl}</td><td>تحتاج <b>{int(req)}</b> / 50</td></tr>"
+                rows += f"<tr class='row-norm'><td>تحتاج <b>{int(req)}</b> / 50</td><td>{lbl}</td></tr>"
             
-        st.markdown(f"<table class='calc-table'><thead><tr><th>التقدير المطلوب</th><th>الدرجة المطلوبة في النهائي</th></tr></thead><tbody>{rows}</tbody></table>", unsafe_allow_html=True)
+        st.markdown(f"<table class='calc-table'><thead><tr><th>الدرجة المطلوبة في النهائي</th><th>التقدير المطلوب</th></tr></thead><tbody>{rows}</tbody></table>", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
         if st.button("تسجيل خروج"):
