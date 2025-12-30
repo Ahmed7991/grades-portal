@@ -131,12 +131,18 @@ def main():
         # Force string for key to keep leading zeros
         df = pd.read_csv("grades.csv", dtype={'رمز_الدخول': str})
         
-        # Ensure 'السعي النهائي (50)' is numeric
-        # This fixes the calculator if the CSV had weird text formats
-        df['السعي النهائي (50)'] = pd.to_numeric(df['السعي النهائي (50)'], errors='coerce').fillna(0)
+        # Ensure numeric columns are properly converted
+        numeric_columns = ['السعي النهائي (50)', 'الامتحان النصفي', 'السعي التكويني (40)', 
+                          'التقرير (10)', 'المناقشة (10)']
+        for col in numeric_columns:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
     except FileNotFoundError:
         st.error("❌ Database missing.")
+        return
+    except Exception as e:
+        st.error(f"❌ Error loading data: {str(e)}")
         return
 
     # --- Login Logic ---
@@ -215,7 +221,7 @@ def main():
         total_col = 'السعي النهائي (50)'
         avg = df[total_col].mean()
         high = df[total_col].max()
-        df_sort = df.sort_values(by=total_col, ascending=False).reset_index()
+        df_sort = df.sort_values(by=total_col, ascending=False).reset_index(drop=True)
         rank = df_sort[df_sort['رمز_الدخول'] == row['رمز_الدخول']].index[0] + 1
 
         s1, s2, s3 = st.columns(3)
