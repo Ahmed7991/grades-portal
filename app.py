@@ -5,8 +5,8 @@ import plotly.graph_objects as go
 # --- CONFIGURATION ---
 KEYS_FILE = "students.csv"
 SUBJECTS_CONFIG = {
-    "برمجة الالعاب": "computer_architecture.csv",
-    "Game Programming": "game_programming.csv"
+    "معمارية الحاسوب": "computer_architecture.csv",
+    "برمجة الالعاب": "game_programming.csv"
 }
 
 # Page Setup
@@ -316,3 +316,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
