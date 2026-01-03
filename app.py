@@ -8,7 +8,8 @@ st.set_page_config(page_title="Student Portal", page_icon="🎓", layout="center
 # --- CONFIGURATION: DEFINE YOUR SUBJECTS HERE ---
 # Format: "Subject Name": "filename.csv."
 SUBJECTS_CONFIG = {
-    "المادة الأساسية": "grades.csv",
+    "برمجة الالعاب": "game_programming.csv",
+    "معمارية الحاسوب": "computer_architecture.csv",
     # To add more subjects, upload the CSV to GitHub and add a line here:
     # "الرياضيات": "math.csv",
     # "الفيزياء": "physics.csv",
@@ -296,4 +297,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
