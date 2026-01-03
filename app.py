@@ -6,9 +6,8 @@ import plotly.graph_objects as go
 st.set_page_config(page_title="Student Portal", page_icon="🎓", layout="centered")
 
 # --- CONFIGURATION: DEFINE YOUR SUBJECTS HERE ---
-# Format: "Subject Name": "filename.csv"
+# Format: "Subject Name": "filename.csv."
 SUBJECTS_CONFIG = {
-    "المادة الأساسية": "grades.csv",
     "المادة الأساسية": "grades.csv",
     # To add more subjects, upload the CSV to GitHub and add a line here:
     # "الرياضيات": "math.csv",
@@ -297,3 +296,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
