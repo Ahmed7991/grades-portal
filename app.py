@@ -2,61 +2,67 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 
-# --- إعدادات الصفحة ---
-st.set_page_config(page_title="بوابة الطالب", page_icon="🎓", layout="centered")
-
-# --- ربط الملفات ---
-# هنا نربط الملفات التي رفعتها بالكود
+# --- CONFIGURATION ---
 KEYS_FILE = "students.csv"
 SUBJECTS_CONFIG = {
     "معمارية الحاسوب": "computer_architecture.csv",
     "برمجة الالعاب": "game_programming.csv"
 }
 
-# --- تصميم الواجهة (High Contrast & Professional) ---
+# Page Setup
+st.set_page_config(page_title="Student Portal", page_icon="🎓", layout="centered")
+
+# --- CUSTOM CSS (High Contrast & Visibility) ---
 st.markdown("""
 <style>
-    /* خلفية التطبيق */
+    /* Force Light Theme Background */
     [data-testid="stAppViewContainer"] {
-        background-color: #f8fafc;
+        background-color: #f8fafc !important;
     }
     
-    /* تنسيق النصوص والخطوط */
-    h1, h2, h3, h4, p, span, div, label, li {
-        color: #1e293b !important; /* لون داكن جداً للقراءة */
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Force Text Colors */
+    h1, h2, h3, h4, p, span, div, label {
+        color: #1e293b !important; /* Dark Slate */
+        font-family: 'Segoe UI', Tahoma, sans-serif;
     }
     
-    .main { 
-        direction: rtl; 
-        text-align: right; 
-    }
+    .main { direction: rtl; text-align: right; }
 
-    /* البطاقات */
+    /* Cards */
     .pro-card {
-        background-color: #ffffff;
+        background-color: #ffffff !important;
         border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         padding: 24px;
         margin-bottom: 20px;
         border: 1px solid #e2e8f0;
     }
 
-    /* صناديق الإحصائيات */
+    /* Subject Box */
+    .subject-header {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+
+    /* Stats */
     .stat-box {
-        background-color: #f1f5f9;
+        background-color: #f1f5f9 !important;
         border-radius: 8px; 
         padding: 15px; 
         text-align: center; 
         border: 1px solid #cbd5e1;
     }
-    .stat-val { font-size: 1.8rem; font-weight: 800; color: #2563eb !important; }
+    .stat-val { font-size: 1.8rem; font-weight: 800; color: #2563eb !important; } /* Blue */
     .stat-lbl { font-size: 0.85rem; font-weight: 700; color: #64748b !important; }
 
-    /* حقول الإدخال */
+    /* Inputs */
     .stTextInput input { 
         background-color: #ffffff !important;
-        color: #0f172a !important;
+        color: #0f172a !important; /* Black Text */
         text-align: center; 
         border: 2px solid #cbd5e1; 
         border-radius: 8px;
@@ -65,10 +71,10 @@ st.markdown("""
         font-weight: bold;
     }
     
-    /* الأزرار */
+    /* Buttons */
     .stButton button { 
         width: 100%; 
-        background-color: #1e293b !important;
+        background-color: #1e293b !important; /* Dark Navy */
         color: #ffffff !important; 
         font-size: 16px; 
         border-radius: 8px; 
@@ -78,22 +84,32 @@ st.markdown("""
     }
     .stButton button:hover { background-color: #0f172a !important; }
 
-    /* أشرطة التقدم */
+    /* Select Box (Dropdown) */
+    .stSelectbox div[data-baseweb="select"] > div {
+        background-color: #ffffff !important;
+        color: #1e293b !important;
+        border: 1px solid #cbd5e1;
+        cursor: pointer;
+    }
+
+    /* Progress Bars */
     .bar-label { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 6px; font-size: 0.9rem; }
     .bar-bg { background-color: #e2e8f0; border-radius: 6px; height: 10px; width: 100%; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 6px; }
 
-    /* جدول الحاسبة */
+    /* Calculator Table */
     .calc-table { width: 100%; direction: rtl; border-collapse: collapse; margin-top: 10px; }
     .calc-table th { background-color: #f1f5f9; padding: 12px; border-bottom: 2px solid #e2e8f0; font-weight: 800; color: #475569 !important; text-align: right; }
     .calc-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #334155 !important; }
+    
+    .pass-tag { background-color: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
+    .fail-tag { background-color: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; opacity: 0.8; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- الدوال المساعدة ---
+# --- FUNCTIONS ---
 
 def load_keys():
-    """تحميل ملف مفاتيح الطلاب"""
     try:
         df = pd.read_csv(KEYS_FILE, dtype={'رمز_الدخول': str})
         return df
@@ -101,10 +117,8 @@ def load_keys():
         return None
 
 def load_subject_data(filename):
-    """تحميل درجات مادة معينة"""
     try:
         df = pd.read_csv(filename)
-        # تحويل الدرجة النهائية إلى رقم للتأكد من الحسابات
         col_name = 'السعي النهائي (50)'
         if col_name in df.columns:
             df[col_name] = pd.to_numeric(df[col_name], errors='coerce').fillna(0)
@@ -113,7 +127,6 @@ def load_subject_data(filename):
         return None
 
 def create_gauge(score, max_score=50):
-    """رسم عداد السرعة"""
     fig = go.Figure(go.Indicator(
         mode = "gauge+number",
         value = score,
@@ -122,14 +135,14 @@ def create_gauge(score, max_score=50):
         number = {'font': {'color': '#1e293b', 'size': 36}},
         gauge = {
             'axis': {'range': [None, max_score], 'tickwidth': 1, 'tickcolor': '#94a3b8'},
-            'bar': {'color': "#3b82f6"}, 
+            'bar': {'color': "#3b82f6"}, # Bright Blue Needle
             'bgcolor': "white",
             'borderwidth': 2,
             'bordercolor': "#e2e8f0",
             'steps': [
-                {'range': [0, 25], 'color': '#fee2e2'}, # أحمر
-                {'range': [25, 40], 'color': '#fef3c7'}, # أصفر
-                {'range': [40, 50], 'color': '#dcfce7'}  # أخضر
+                {'range': [0, 25], 'color': '#fee2e2'}, # Red
+                {'range': [25, 40], 'color': '#fef3c7'}, # Yellow
+                {'range': [40, 50], 'color': '#dcfce7'}  # Green
             ],
         }
     ))
@@ -137,7 +150,6 @@ def create_gauge(score, max_score=50):
     return fig
 
 def progress_html(label, value, max_val, color):
-    """رسم شريط تقدم ملون"""
     try: val = float(value)
     except: val = 0.0
     pct = (val / max_val) * 100
@@ -154,14 +166,14 @@ def progress_html(label, value, max_val, color):
     </div>
     """
 
-# --- البرنامج الرئيسي ---
+# --- MAIN APP LOGIC ---
 
 def main():
     if 'logged_in' not in st.session_state:
         st.session_state.logged_in = False
         st.session_state.student_name = ""
 
-    # 1. شاشة تسجيل الدخول
+    # 1. LOGIN SCREEN
     if not st.session_state.logged_in:
         st.markdown("<br><br>", unsafe_allow_html=True)
         c1, c2, c3 = st.columns([1, 2, 1])
@@ -179,7 +191,6 @@ def main():
             if st.button("دخول"):
                 keys_df = load_keys()
                 if keys_df is not None:
-                    # البحث عن الرمز في ملف students.csv
                     student = keys_df[keys_df['رمز_الدخول'] == key]
                     if not student.empty:
                         st.session_state.logged_in = True
@@ -188,13 +199,13 @@ def main():
                     else:
                         st.error("❌ الرمز غير صحيح")
                 else:
-                    st.error("❌ ملف بيانات الطلاب مفقود (students.csv)")
+                    st.error("❌ ملف البيانات مفقود")
 
-    # 2. لوحة التحكم (الداشبورد)
+    # 2. DASHBOARD SCREEN
     else:
         student_name = st.session_state.student_name
 
-        # بطاقة الترحيب
+        # Header Card
         st.markdown(f"""
         <div class="pro-card" style="display:flex; justify-content:space-between; align-items:center;">
             <div style="text-align:right;">
@@ -207,40 +218,40 @@ def main():
         </div>
         """, unsafe_allow_html=True)
 
-        # قائمة اختيار المادة
+        # Subject Selector
         selected_subject = st.selectbox("اختر المادة:", list(SUBJECTS_CONFIG.keys()))
         
-        # تحميل بيانات المادة المختارة
+        # Load Data
         filename = SUBJECTS_CONFIG[selected_subject]
         grades_df = load_subject_data(filename)
 
         if grades_df is None:
-            st.warning("⚠️ ملف هذه المادة غير موجود في النظام.")
+            st.warning("⚠️ ملف هذه المادة غير موجود.")
         else:
-            # البحث عن الطالب بالاسم
+            # Find Student
             record = grades_df[grades_df['اسم الطالب'].str.strip() == student_name.strip()]
 
             if record.empty:
-                st.warning(f"⚠️ عذراً، لم يتم العثور على درجة للطالب في مادة: {selected_subject}")
+                st.warning(f"⚠️ لم يتم العثور على درجة للطالب في مادة: {selected_subject}")
             else:
                 row = record.iloc[0]
                 total = float(row['السعي النهائي (50)'])
 
-                # تحديد التقدير واللون
+                # Badge Logic
                 if total >= 40: badge, bg, txt = "🌟 ممتاز", "#dcfce7", "#166534"
                 elif total >= 30: badge, bg, txt = "✅ جيد جداً", "#dbeafe", "#1e40af"
                 elif total >= 25: badge, bg, txt = "⚖️ متوسط", "#fef9c3", "#854d0e"
                 else: badge, bg, txt = "⚠️ تنبيه", "#fee2e2", "#991b1b"
 
-                # عنوان المادة والتقدير
+                # Subject Header
                 st.markdown(f"""
-                <div class="subject-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 15px;">
+                <div class="subject-header">
                     <h3 style="margin:0;">{selected_subject}</h3>
                     <span style="background-color:{bg}; color:{txt}; padding:5px 12px; border-radius:20px; font-weight:bold; font-size:0.85rem;">{badge}</span>
                 </div>
                 """, unsafe_allow_html=True)
 
-                # قسم الرسوم البيانية
+                # Charts Row
                 col1, col2 = st.columns([1, 1])
                 
                 with col1:
@@ -252,19 +263,19 @@ def main():
                     st.markdown('<div class="pro-card" style="height:100%;">', unsafe_allow_html=True)
                     st.markdown("<h4 style='margin-bottom:15px;'>تفاصيل الدرجة</h4>", unsafe_allow_html=True)
                     
-                    # جلب الدرجات الفرعية بأمان
+                    # Safe Get
                     mid = row.get('الامتحان النصفي', 0)
                     formative = row.get('السعي التكويني (40)', 0)
                     rep = row.get('التقرير (10)', 0)
                     disc = row.get('المناقشة (10)', 0)
 
-                    st.markdown(progress_html("الامتحان النصفي", mid, 15, "#f59e0b"), unsafe_allow_html=True) # برتقالي
-                    st.markdown(progress_html("السعي التكويني", formative, 40, "#3b82f6"), unsafe_allow_html=True) # أزرق
-                    st.markdown(progress_html("↳ التقرير", rep, 10, "#8b5cf6"), unsafe_allow_html=True) # بنفسجي
-                    st.markdown(progress_html("↳ المناقشة", disc, 10, "#10b981"), unsafe_allow_html=True) # أخضر
+                    st.markdown(progress_html("الامتحان النصفي", mid, 15, "#f59e0b"), unsafe_allow_html=True) # Orange
+                    st.markdown(progress_html("السعي التكويني", formative, 40, "#3b82f6"), unsafe_allow_html=True) # Blue
+                    st.markdown(progress_html("↳ التقرير", rep, 10, "#8b5cf6"), unsafe_allow_html=True) # Purple
+                    st.markdown(progress_html("↳ المناقشة", disc, 10, "#10b981"), unsafe_allow_html=True) # Green
                     st.markdown('</div>', unsafe_allow_html=True)
 
-                # قسم الإحصائيات (الترتيب والمعدل)
+                # Stats Row
                 total_col = 'السعي النهائي (50)'
                 avg = grades_df[total_col].mean()
                 high = grades_df[total_col].max()
@@ -277,36 +288,32 @@ def main():
 
                 s1, s2, s3 = st.columns(3)
                 s3.markdown(f'<div class="stat-box"><div class="stat-val">#{rank}</div><div class="stat-lbl">الترتيب</div></div>', unsafe_allow_html=True)
-                s2.markdown(f'<div class="stat-box"><div class="stat-val">{avg:.1f}</div><div class="stat-lbl">معدل الدفعة</div></div>', unsafe_allow_html=True)
-                s1.markdown(f'<div class="stat-box"><div class="stat-val">{high}</div><div class="stat-lbl">أعلى درجة</div></div>', unsafe_allow_html=True)
+                s2.markdown(f'<div class="stat-box"><div class="stat-val">{avg:.1f}</div><div class="stat-lbl">المعدل</div></div>', unsafe_allow_html=True)
+                s1.markdown(f'<div class="stat-box"><div class="stat-val">{high}</div><div class="stat-lbl">الأعلى</div></div>', unsafe_allow_html=True)
 
-                # قسم حاسبة الفاينل
+                # Calculator
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.markdown('<div class="pro-card">', unsafe_allow_html=True)
                 st.markdown("<h4 style='margin-bottom:10px;'>🧮 حاسبة الامتحان النهائي (من 50)</h4>", unsafe_allow_html=True)
-                st.markdown("<p style='font-size:0.9rem; color:#64748b;'>كم تحتاج في الامتحان النهائي للحصول على تقدير معين؟</p>", unsafe_allow_html=True)
                 
                 targets = {"مقبول (50)": 50, "متوسط (60)": 60, "جيد (70)": 70, "جيد جداً (80)": 80, "امتياز (90)": 90}
                 rows = ""
                 for lbl, tgt in targets.items():
                     req = tgt - total
                     if req <= 0:
-                        # ناجح مسبقاً
-                        rows += f"<tr><td>{lbl}</td><td style='background-color:#dcfce7; color:#166534; font-weight:bold; border-radius:6px;'>✅ ناجح مسبقاً</td></tr>"
+                        rows += f"<tr><td>{lbl}</td><td><span class='pass-tag'>✅ ناجح مسبقاً</span></td></tr>"
                     elif req > 50:
-                        # مستحيل
-                        rows += f"<tr><td>{lbl}</td><td style='background-color:#fee2e2; color:#991b1b; font-weight:bold; border-radius:6px; opacity:0.8;'>❌ غير ممكن</td></tr>"
+                        rows += f"<tr><td>{lbl}</td><td><span class='fail-tag'>❌ غير ممكن</span></td></tr>"
                     else:
-                        # ممكن
-                        rows += f"<tr><td>{lbl}</td><td style='font-weight:bold; color:#1e293b;'>تحتاج <b>{int(req)}</b></td></tr>"
+                        rows += f"<tr><td>{lbl}</td><td>تحتاج <b>{int(req)}</b></td></tr>"
                 
-                st.markdown(f"<table class='calc-table'><thead><tr><th>التقدير المطلوب</th><th>المطلوب في الفاينل</th></tr></thead><tbody>{rows}</tbody></table>", unsafe_allow_html=True)
+                st.markdown(f"<table class='calc-table'><thead><tr><th>التقدير المطلوب</th><th>المطلوب</th></tr></thead><tbody>{rows}</tbody></table>", unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
 
-        # زر تسجيل الخروج
         if st.button("تسجيل خروج"):
             st.session_state.logged_in = False
             st.rerun()
 
 if __name__ == "__main__":
     main()
+
