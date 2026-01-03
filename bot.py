@@ -7,8 +7,6 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 
 # --- CONFIGURATION ---
-# ⚠️ SECURITY NOTE: This is a public template. 
-# Do not paste real tokens here if uploading to GitHub.
 BOT_TOKEN = "PASTE_YOUR_TOKEN_HERE" 
 WEBSITE_URL = "https://grades-app-a.streamlit.app/"
 ADMIN_ID = 000000000  # Replace with your Admin ID
