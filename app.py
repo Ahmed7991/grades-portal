@@ -3,12 +3,11 @@ import pandas as pd
 import plotly.graph_objects as go
 
 # --- CONFIGURATION ---
-# Replace this ID with your Google Sheet ID (Found in the URL)
-# Example URL: docs.google.com/spreadsheets/d/1A2B3C4D5E/edit
-SHEET_ID = "docs.google.com/spreadsheets/d/1UhMsdmZeFYQFHIYdPGHNPlos_rC0gJPmpedOu8jyfbU/edit" 
+# ONLY the ID, not the full URL
+SHEET_ID = "1UhMsdmZeFYQFHIYdPGHNPlos_rC0gJPmpedOu8jyfbU"
 
 SUBJECTS_CONFIG = {
-    "تحليل وتصميم الخوارزميات": "analysis_of_ algorithms.csv",
+    "تحليل وتصميم الخوارزميات": "analysis_of_algorithms.csv", # Fixed potential space in filename
     "معمارية الحاسوب": "computer_architecture.csv",
     "برمجة الالعاب": "game_programming.csv"
 }
@@ -44,6 +43,7 @@ st.markdown("""
 @st.cache_data(ttl=600) # Cache data for 10 minutes to be fast
 def load_sheet(sheet_name):
     """Loads a specific sheet tab by name"""
+    # Now this URL construction will work correctly because SHEET_ID is clean
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     try:
         df = pd.read_csv(url, dtype={'رمز_الدخول': str})
@@ -56,6 +56,8 @@ def load_sheet(sheet_name):
             
         return df
     except Exception as e:
+        # It's often good to print the error to console for debugging
+        print(f"Error loading sheet {sheet_name}: {e}")
         return None
 
 def create_gauge(score, max_score=50):
@@ -105,13 +107,17 @@ def main():
             if st.button("دخول"):
                 keys_df = load_sheet("students") # Load form Google Sheet
                 if keys_df is not None:
-                    student = keys_df[keys_df['رمز_الدخول'] == key]
-                    if not student.empty:
-                        st.session_state.logged_in = True
-                        st.session_state.student_name = student.iloc[0]['اسم الطالب']
-                        st.rerun()
+                    # Check if key column exists to avoid errors
+                    if 'رمز_الدخول' in keys_df.columns:
+                        student = keys_df[keys_df['رمز_الدخول'] == key]
+                        if not student.empty:
+                            st.session_state.logged_in = True
+                            st.session_state.student_name = student.iloc[0]['اسم الطالب']
+                            st.rerun()
+                        else:
+                            st.error("❌ الرمز غير صحيح")
                     else:
-                        st.error("❌ الرمز غير صحيح")
+                        st.error("❌ خطأ في قاعدة البيانات: عمود 'رمز_الدخول' مفقود")
                 else:
                     st.error("❌ فشل الاتصال بقاعدة البيانات")
 
@@ -125,7 +131,8 @@ def main():
         grades_df = load_sheet(sheet_name) # Load from Google Sheet
 
         if grades_df is None:
-            st.warning(⚠️ جاري تحديث البيانات... يرجى المحاولة لاحقاً")
+            # FIXED: Added the missing quote " at the start of the string
+            st.warning("⚠️ جاري تحديث البيانات... يرجى المحاولة لاحقاً")
         else:
             record = grades_df[grades_df['اسم الطالب'].str.strip() == student_name.strip()]
             if record.empty:
