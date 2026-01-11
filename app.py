@@ -3,11 +3,11 @@ import pandas as pd
 import plotly.graph_objects as go
 
 # --- CONFIGURATION ---
-# ONLY the ID, not the full URL
+# FIXED: Use ONLY the ID, not the full URL
 SHEET_ID = "1UhMsdmZeFYQFHIYdPGHNPlos_rC0gJPmpedOu8jyfbU"
 
 SUBJECTS_CONFIG = {
-    "تحليل وتصميم الخوارزميات": "analysis_of_algorithms.csv", # Fixed potential space in filename
+    "تحليل وتصميم الخوارزميات": "analysis_of_algorithms.csv",
     "معمارية الحاسوب": "computer_architecture.csv",
     "برمجة الالعاب": "game_programming.csv"
 }
