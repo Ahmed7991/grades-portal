@@ -125,18 +125,18 @@ def main():
         grades_df = load_sheet(sheet_name) # Load from Google Sheet
 
         if grades_df is None:
-            st.warning(جاري تحديث البيانات... يرجى المحاولة لاحقاً")
+            st.warning(⚠️ جاري تحديث البيانات... يرجى المحاولة لاحقاً")
         else:
             record = grades_df[grades_df['اسم الطالب'].str.strip() == student_name.strip()]
             if record.empty:
-                st.warning(f"لم يتم العثور على درجة للطالب في مادة: {selected_subject}")
+                st.warning(f"⚠️ لم يتم العثور على درجة للطالب في مادة: {selected_subject}")
             else:
                 row = record.iloc[0]
                 total = float(row['السعي النهائي (50)'])
                 if total >= 40: badge, bg, txt = "🌟 ممتاز", "#dcfce7", "#166534"
                 elif total >= 30: badge, bg, txt = "✅ جيد جداً", "#dbeafe", "#1e40af"
                 elif total >= 25: badge, bg, txt = "⚖️ متوسط", "#fef9c3", "#854d0e"
-                else: badge, bg, txt = "تنبيه", "#fee2e2", "#991b1b"
+                else: badge, bg, txt = "⚠️ تنبيه", "#fee2e2", "#991b1b"
 
                 st.markdown(f"""<div class="subject-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 15px;"><h3 style="margin:0;">{selected_subject}</h3><span style="background-color:{bg}; color:{txt}; padding:5px 12px; border-radius:20px; font-weight:bold; font-size:0.85rem;">{badge}</span></div>""", unsafe_allow_html=True)
 
