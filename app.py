@@ -7,7 +7,6 @@ import plotly.graph_objects as go
 SHEET_ID = "1UhMsdmZeFYQFHIYdPGHNPlos_rC0gJPmpedOu8jyfbU"
 
 SUBJECTS_CONFIG = {
-    "تحليل وتصميم الخوارزميات": "analysis_of_algorithms",
     "معمارية الحاسوب": "computer_architecture",
     "برمجة الالعاب": "game_programming"
 }
@@ -195,4 +194,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
