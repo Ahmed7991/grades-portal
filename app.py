@@ -8,7 +8,8 @@ SHEET_ID = "1UhMsdmZeFYQFHIYdPGHNPlos_rC0gJPmpedOu8jyfbU"
 
 SUBJECTS_CONFIG = {
     "معمارية الحاسوب": "computer_architecture",
-    "برمجة الالعاب": "game_programming"
+    "برمجة الالعاب": "game_programming",
+    "الرسم بالحاسوب": "computer_drawing"
 }
 
 # Page Setup
@@ -194,5 +195,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
