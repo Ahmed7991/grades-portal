@@ -8,9 +8,9 @@ import plotly.graph_objects as go
 SHEET_ID = "docs.google.com/spreadsheets/d/1UhMsdmZeFYQFHIYdPGHNPlos_rC0gJPmpedOu8jyfbU/edit" 
 
 SUBJECTS_CONFIG = {
-    "تحليل وتصميم الخوارزميات": "analysis_of_ algorithms.csv",
-    "معمارية الحاسوب": "computer_architecture.csv",
-    "برمجة الالعاب": "game_programming.csv"
+    "تحليل وتصميم الخوارزميات": "analysis_of_ algorithms",
+    "معمارية الحاسوب": "computer_architecture",
+    "برمجة الالعاب": "game_programming"
 }
 
 # Page Setup
@@ -188,3 +188,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
